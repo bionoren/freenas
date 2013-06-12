@@ -6,3 +6,6 @@ diablo-caffe-freebsd7-amd64-1.6.0_07-b02.tar.bz2
 copy this file to FreeBSD/ports/distfiles/ and to os-base/amd64/ports/distfiles/. These directories will not exist initially, so you'll have to run do_build.sh at least twice. Check the end of os-base/amd64/_.cust.add_port_java_* to make sure it built successfully as this package has a tendency to silently fail.
 
 See also https://github.com/bionoren/freenas-extra
+
+WARNING:
+As best I can tell, OpenJDK7 does not support KQueuePollProvider, and is thus not the recommended way to run Crashplan. This support is supposedly being added in OpenJDK8. See the -jdk6 branch for work on a non-linux-emulation solution.
