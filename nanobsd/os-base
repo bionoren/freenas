@@ -316,6 +316,7 @@ add_port www/wgetpaste
 add_port devel/py-greenlet
 add_port net/py-eventlet
 add_port graphics/jpeg
+add_java_port java/jdk16
 
 # NOTE: in reality these aren't DEBUG apps, but this ensures that they aren't
 # counted against the release image's size because they aren't used in
@@ -328,7 +329,7 @@ if [ "${DEBUG}" = 1 ]; then
 	add_port devel/pyrex
 fi
 
-if [ "${DEBUG}" = 1 ]; then 
+if [ "${DEBUG}" = 1 ]; then
 	add_port security/ca_root_nss WITH_ETCSYMLINK=y
 	add_port ftp/curl
 	add_port devel/apr1
@@ -460,7 +461,7 @@ customize_cmd add_pbi_manager
 
 add_pbi_wrapper()
 {
-    local _pm 
+    local _pm
     _pm="${NANO_WORLDDIR}/usr/pbi/.pbiwrapper"
 
     pprint 2 "Adding PBI wrapper"
@@ -491,7 +492,7 @@ add_data_to_fstab ( )
 	echo "/dev/${NANO_DRIVE}s4 /data ufs rw,noatime 2 2" >> etc/fstab
 	mkdir -p data
 	)
-	
+
 }
 customize_cmd add_data_to_fstab
 
