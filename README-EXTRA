@@ -1,0 +1,20 @@
+See README and other official FreeNAS documentation for instructions about setting up a build environment and the build process. This documentation is about installing java for the purpose of running Crashplan on FreeNAS.
+
+You will need to download the following file, which cannot be provided for licensing reasons:
+diablo-caffe-freebsd7-amd64-1.6.0_07-b02.tar.bz2
+jdk-6u3-fcs-src-b05-jrl-24_sep_2007.jar
+jdk-6u3-fcs-mozilla_headers-b05-unix-24_sep_2007.jar
+jdk-6u3-fcs-bin-b05-jrl-24_sep_2007.jar
+bsd-jdk16-patches-4.tar.bz2
+
+copy these files to FreeBSD/ports/distfiles/ and to os-base/amd64/ports/distfiles/. These directories will not exist initially, so you'll have to run do_build.sh at least twice. Check the end of os-base/amd64/_.cust.add_port_java_* to make sure it built successfully as this package has a tendency to silently fail.
+
+Finally, once you have the FreeBSD ports tree downloaded, patch the following makefiles with the provided patches (and, of course, build again):
+java/jdk16
+java/diablo-jdk16
+print/cups-base
+
+See also https://github.com/bionoren/freenas-extra
+
+WARNING:
+If the build hangs for a long time (> 1 hour on my hardware, also look for sustained very constant CPU usage), you've probably stalled at some interactive prompt. Stop and check the log mentioned above, and try deleting OPTION related definitions in the relevant Makefile.

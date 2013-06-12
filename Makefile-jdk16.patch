@@ -1,0 +1,24 @@
+--- Makefile-jdk16-orig	2013-06-12 11:09:35.000000000 -0500
++++ Makefile-jdk16	2013-06-12 09:36:28.000000000 -0500
+@@ -24,13 +24,6 @@
+ 		${LOCALBASE}/include/cups/cups.h:${PORTSDIR}/print/cups-client
+ RUN_DEPENDS=	javavm:${PORTSDIR}/java/javavmwrapper
+ 
+-OPTIONS=	DEBUG	"Enable debugging support"	off \
+-		IPV6	"Enable IPv6 support"		off \
+-		WEB	"Enable the browser plugin and Java Web Start"	on \
+-		POLICY	"Install the Unlimited Strength Policy Files"	off \
+-		TZUPDATE	"Update the time zone data"		on \
+-		JAIL	"Port is being built within a jail"		off
+-
+ WANT_GNOME=	yes
+ PKGINSTALL=	${WRKDIR}/pkg-install
+ PKGDEINSTALL=	${WRKDIR}/pkg-deinstall
+@@ -44,7 +37,6 @@
+ USE_ZIP=	yes
+ MAKE_JOBS_UNSAFE=	yes
+ .if !defined(PACKAGE_BUILDING)
+-IS_INTERACTIVE=	yes
+ .endif
+ 
+ JRL_SRCFILE=	jdk-${JDK_MAJOR_VERSION}u${JDK_UPDATE_VERSION}-fcs-src-b${JDK_BUILD_NUMBER}-jrl-${JDK_BUILD_DATE}.jar
