@@ -289,6 +289,97 @@ add_port ()
     fi
 }
 
+# Build a port (with the side effect of creating a package)
+do_add_java_port ()
+{
+	local port_path
+	port_path=$1
+	shift
+	# Need to create ${NANO_OBJ}/ports in this add_port_${port} function
+	mkdir -p ${NANO_OBJ}/ports/distfiles
+	mkdir -p ${NANO_OBJ}/ports/packages
+	mkdir -p ${NANO_PORTS}/packages
+	mkdir -p ${NANO_PORTS}/distfiles
+	mkdir -p ${NANO_WORLDDIR}/usr/src
+	mkdir -p ${NANO_WORLDDIR}/usr/ports
+      	mount -t nullfs -o noatime ${NANO_SRC} ${NANO_WORLDDIR}/usr/src
+	mount -t nullfs -o noatime ${NANO_PORTS} ${NANO_WORLDDIR}/usr/ports
+	mount -t nullfs -o noatime ${NANO_OBJ}/ports/packages \
+	    ${NANO_WORLDDIR}/usr/ports/packages
+	mount -t nullfs -o noatime ${NANO_OBJ}/ports/distfiles \
+	    ${NANO_WORLDDIR}/usr/ports/distfiles
+	mkdir -p ${NANO_WORLDDIR}/usr/workdir
+	cp /etc/resolv.conf ${NANO_WORLDDIR}/etc/resolv.conf
+# Improvement: Don't know why package-recursive don't works here
+	CR "env \
+	    make WITHOUT_TZUPDATE=yes \
+	    __MAKE_CONF=${NANO_MAKE_CONF_BUILD} \
+	    SRC_BASE=/usr/src \
+	    WRKDIRPREFIX=/usr/workdir -C /usr/ports/$port_path \
+	    clean package BATCH=yes -DUSE_PACKAGE_DEPENDS \
+	    $* clean -DFORCE_PACKAGE -DFORCE_PKG_REGISTER"
+	rm ${NANO_WORLDDIR}/etc/resolv.conf
+	rm -rf ${NANO_WORLDDIR}/usr/obj
+	rm -rf ${NANO_WORLDDIR}/usr/workdir
+	umount ${NANO_WORLDDIR}/usr/ports/packages
+	umount ${NANO_WORLDDIR}/usr/ports/distfiles
+	umount ${NANO_WORLDDIR}/usr/ports
+	umount ${NANO_WORLDDIR}/usr/src
+}
+
+# Need to check if this function works with cross-compiling architecture!!!!
+# Recursive complex function: Generate one function for each ports
+add_java_port ()
+{
+    local _add_pkg PKG_NAME
+    local port_path=$1
+    local port=`echo $1 | sed -e 's/\//_/'`
+    shift
+    # Check if package already exist
+    # Need to:
+    # 1. check ARCH of this package!
+    # 2. Add a trap
+    cd ${NANO_PORTS}/${port_path}
+    # __MAKE_CONF -> ${NANO_MAKE_CONF_BUILD} -- can't plug this in because of a
+    # sourcing chicken and egg problem.
+    set +e
+    PKG_NAME=`make ${PKGNAME_HACK} PORTSDIR=${NANO_PORTS} __MAKE_CONF=${NANO_OBJ}/make.conf.install OPTIONSFILE=/nonexistent package-name $*`
+    if [ $? -ne 0 ]; then
+        echo "failed to determine the package name for $port_path"
+        exit 1
+    fi
+    set -e
+
+    _add_pkg=false
+    if $do_world && $do_clean; then
+        # HACK: make do_build.sh -ff work properly instead of having
+        # do_add_pkg fall flat on its face when it tries to add the
+        # missing package.
+        :
+    elif [ -f ${NANO_OBJ}/ports/packages/All/${PKG_NAME}.tbz ]; then
+	# Pkg file found: Generate add_pkg_NAME function
+        _add_pkg=true
+    fi
+
+    if $_add_pkg; then
+	eval "
+	    add_pkg_${port} () {
+	        do_add_pkg ${PKG_NAME}
+	    }
+            customize_cmd add_pkg_${port}
+            "
+    else
+	echo "Package is not yet built: $port"
+        eval "
+            add_port_${port} () {
+	        do_add_java_port ${port_path} $*
+	    }
+	    customize_cmd add_port_${port}
+	"
+	NANO_PACKAGE_ONLY=0
+    fi
+}
+
 # Fill in stub functions for non-base OS images.
 if [ $AVATAR_COMPONENT != "os-base" ]
 then
@@ -401,4 +492,3 @@ make_conf_install ( ) (
 	mkdir -p ${NANO_WORLDDIR}/usr/pbi
 	chown root:wheel ${NANO_WORLDDIR}/usr/pbi
 )
-
