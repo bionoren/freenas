@@ -1,0 +1,13 @@
+See README and other official FreeNAS documentation for instructions about setting up a build environment and the build process. This documentation is about installing java for the purpose of running Crashplan on FreeNAS.
+
+You will need to download the following file, which cannot be provided for licensing reasons:
+jre-7u4-linux-i586.tar.gz
+
+copy this file to FreeBSD/ports/distfiles/ and to os-base/amd64/ports/distfiles/. These directories will not exist initially, so you'll have to run do_build.sh at least twice. You will also need to run 'kldload linux.ko' and define the following environment variables:
+OVERRIDE_LINUX_BASE_PORT=f10
+OVERRIDE_LINUX_NONBASE_PORTS=f10
+FREEBSD_CVSUP_HOST=cvsup10.freebsd.org
+
+If the build fails during or after installing the java package, you will need to re-copy the previously mentioned file(s) to the previously mentioned directories. If you need to restart the VM for any reason, you will need to redefine the environment variables and reload linux.ko.
+
+See also https://github.com/bionoren/freenas-extra

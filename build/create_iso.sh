@@ -220,6 +220,7 @@ init_shell="/rescue/sh"
 init_script="/baseroot.rc"
 init_chroot="/baseroot"
 opensolaris_load="YES"
+linux_enable="YES"
 zfs_load="YES"
 # GEOM support
 geom_mirror_load="YES"
